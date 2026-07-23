@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>后台登录</title>
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="logo">NINO<span>.</span>CMS</div>
+      <h1>管理员登录</h1>
+      <p style="color:var(--muted)">使用 Supabase Authentication 创建的邮箱和密码。</p>
+
+      <form id="login-form">
+        <div class="field">
+          <label for="email">邮箱</label>
+          <input id="email" type="email" autocomplete="email" required>
+        </div>
+
+        <div class="field" style="margin-top:14px">
+          <label for="password">密码</label>
+          <input id="password" type="password" autocomplete="current-password" required>
+        </div>
+
+        <button id="login-button" class="btn" style="width:100%;margin-top:18px" type="submit">
+          登录
+        </button>
+
+        <p id="result" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/config.js"></script>
+  <script>
+    const form = document.getElementById("login-form");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const resultEl = document.getElementById("result");
+    const loginButton = document.getElementById("login-button");
+
+    if (
+      !window.NINO_CONFIG ||
+      !window.NINO_CONFIG.SUPABASE_URL ||
+      !window.NINO_CONFIG.SUPABASE_PUBLISHABLE_KEY ||
+      window.NINO_CONFIG.SUPABASE_PUBLISHABLE_KEY.includes("请粘贴")
+    ) {
+      resultEl.className = "error";
+      resultEl.textContent = "后台配置未完成，请检查 config.js 中的 Publishable Key。";
+      loginButton.disabled = true;
+    } else {
+      const client = window.supabase.createClient(
+        window.NINO_CONFIG.SUPABASE_URL,
+        window.NINO_CONFIG.SUPABASE_PUBLISHABLE_KEY
+      );
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        resultEl.className = "";
+        resultEl.textContent = "登录中…";
+        loginButton.disabled = true;
+        loginButton.textContent = "登录中…";
+
+        try {
+          const { data, error } = await client.auth.signInWithPassword({
+            email: emailInput.value.trim(),
+            password: passwordInput.value
+          });
+
+          if (error) {
+            throw error;
+          }
+
+          if (!data.session) {
+            throw new Error("登录成功，但未获取到有效会话。");
+          }
+
+          resultEl.className = "success";
+          resultEl.textContent = "登录成功，正在进入后台…";
+          window.location.href = "dashboard.html";
+        } catch (error) {
+          console.error("Login error:", error);
+          resultEl.className = "error";
+          resultEl.textContent = error?.message || "登录失败，请检查邮箱和密码。";
+          loginButton.disabled = false;
+          loginButton.textContent = "登录";
+        }
+      });
+    }
+  </script>
+</body>
+</html>
