@@ -1,0 +1,8 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>后台登录</title><link rel="stylesheet" href="assets/css/admin.css"></head>
+<body><div class="login-wrap"><div class="login-card"><div class="logo">NINO<span>.</span>CMS</div><h1>管理员登录</h1><p style="color:var(--muted)">使用 Supabase Authentication 创建的邮箱和密码。</p>
+<form id="login-form"><div class="field"><label>邮箱</label><input id="email" type="email" required></div><div class="field" style="margin-top:14px"><label>密码</label><input id="password" type="password" required></div>
+<button class="btn" style="width:100%;margin-top:18px">登录</button><p id="result"></p></form></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="assets/js/config.js"></script><script>
+const client=supabase.createClient(NINO_CONFIG.SUPABASE_URL,NINO_CONFIG.SUPABASE_PUBLISHABLE_KEY);
+login_form.addEventListener("submit",async e=>{e.preventDefault();result.textContent="登录中…";const {error}=await client.auth.signInWithPassword({email:email.value.trim(),password:password.value});if(error){result.className="error";result.textContent=error.message}else location.href="dashboard.html"});
+</script></body></html>

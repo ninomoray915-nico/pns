@@ -1,0 +1,8 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="assets/css/admin.css"><title>作品管理</title></head><body><div class="layout"><aside class="sidebar"><div class="logo">NINO<span>.</span>CMS</div><nav class="nav"><a href="dashboard.html">仪表盘</a><a href="projects.html">作品管理</a><a href="project-edit.html">新增作品</a><a href="messages.html">留言管理</a><a href="#" onclick="logout()">退出登录</a></nav></aside><main class="main">
+<div class="topbar"><div><h1>作品管理</h1></div><button class="btn" onclick="location.href='project-edit.html'">新增作品</button></div>
+<div class="card"><table class="table"><thead><tr><th>标题</th><th>分类</th><th>状态</th><th>排序</th><th>操作</th></tr></thead><tbody id="rows"></tbody></table></div>
+<script>
+async function load(){if(!await requireAdmin())return;const {data,error}=await supabaseClient.from("projects").select("*").order("sort_order");if(error)return alert(error.message);
+rows.innerHTML=(data||[]).map(p=>`<tr><td>${p.title}</td><td>${p.category||"-"}</td><td><span class="status">${p.status}</span></td><td>${p.sort_order}</td><td><button class="btn secondary" onclick="location.href='project-edit.html?id=${p.id}'">编辑</button> <button class="btn danger" onclick="del('${p.id}')">删除</button></td></tr>`).join("")}
+async function del(id){if(!confirm("确定删除？"))return;const {error}=await supabaseClient.from("projects").delete().eq("id",id);if(error)alert(error.message);else load()}load();
+</script></main></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="assets/js/config.js"></script><script src="assets/js/common.js"></script></body></html>
